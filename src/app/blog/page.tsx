@@ -1,23 +1,42 @@
-import Link from 'next/link';
+import { Suspense } from 'react';
 import { allPosts, Post } from 'content-collections';
+import TagFilter from '../components/blog/TagFilter';
+import BlogList from '../components/blog/BlogList';
+import LoadMoreButton from '../components/blog/LoadMoreButton';
 
-export default function BlogList() {
+export const dynamic = 'force-dynamic';
+
+async function getUniqueTags() {
+  const tags = new Set(allPosts.flatMap((post) => post.tags));
+  return Array.from(tags);
+}
+
+export default async function BlogPage() {
+  const tags = await getUniqueTags();
+
   return (
-    <>
-      <h2 className="text-3xl font-bold mb-6">Articles du blog</h2>
-      <ul className="space-y-4">
-        {allPosts.map((post: Post) => (
-          <li
-            key={post._meta.path}
-            className="border rounded-lg p-4 hover:shadow-md transition-shadow"
-          >
-            <Link href={`/blog/${post._meta.path}`}>
-              <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
-              <p className="text-gray-600">{post.summary}</p>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </>
+    <div className="bg-white py-24 sm:py-32">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            From the Blog
+          </h2>
+          <p className="mt-2 text-lg leading-8 text-gray-600">
+            Discover our latest articles and stay informed about the latest
+            trends.
+          </p>
+        </div>
+
+        <div className="mt-8 max-w-md mx-auto">
+          <TagFilter tags={tags} />
+        </div>
+
+        <Suspense fallback={<div>Loading posts...</div>}>
+          <BlogList initialPosts={allPosts} />
+        </Suspense>
+
+        <LoadMoreButton />
+      </div>
+    </div>
   );
 }
