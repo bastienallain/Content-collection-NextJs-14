@@ -1,7 +1,8 @@
-import { allPosts, Post } from 'content-collections';
-import { notFound } from 'next/navigation';
-import { Metadata } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
+import { allPosts, Post } from 'content-collections';
+import ShareButtons from '@/blog/ShareButtons';
+import FeaturedPosts from '@/blog/FeaturedPosts';
 
 export async function generateStaticParams() {
   return allPosts.map((post) => ({
@@ -9,72 +10,61 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
-  const post = allPosts.find((p: Post) => p._meta.path === params.slug);
-
-  if (!post) {
-    return {};
-  }
-
-  return {
-    title: post.title,
-    description: post.description,
-    openGraph: {
-      title: post.title,
-      description: post.description,
-      type: 'article',
-      publishedTime: post.publishDate,
-      authors: [post.author],
-      images: [
-        {
-          url: post.image.src,
-          alt: post.image.alt,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: post.title,
-      description: post.description,
-      images: [post.image.src],
-    },
-  };
-}
-
 export default function BlogPost({ params }: { params: { slug: string } }) {
-  const post = allPosts.find((p: Post) => p._meta.path === params.slug);
+  const post = allPosts.find((p) => p._meta.path === params.slug);
 
   if (!post) {
-    notFound();
+    return <div>Post not found</div>;
   }
 
   return (
-    <article className="prose lg:prose-xl">
-      <h1>{post.title}</h1>
-      <div className="mb-4">
+    <article className="max-w-screen-5xl mx-auto pt-20">
+      <div className="relative w-full h-96">
         <Image
           src={post.image.src}
           alt={post.image.alt}
-          width={800}
-          height={400}
+          layout="fill"
+          objectFit="cover"
+          className="rounded-none"
         />
-      </div>
-      <div className="text-sm text-gray-500 mb-4">
-        Publié le {post.publishDate} • Temps de lecture : {post.timeToRead} min
-      </div>
-      <div dangerouslySetInnerHTML={{ __html: post.content }} />
-      <div className="mt-4">
-        <h2>Tags</h2>
-        <div className="flex flex-wrap gap-2">
+        <div className="absolute bottom-4 left-4 flex flex-wrap gap-2">
           {post.tags.map((tag) => (
-            <span key={tag} className="bg-gray-200 px-2 py-1 rounded">
+            <span
+              key={tag}
+              className="bg-green-500 text-white px-2 py-1 rounded-full text-sm"
+            >
               {tag}
             </span>
           ))}
+        </div>
+      </div>
+
+      <div className="max-w-screen-xl mx-auto">
+        <div className="mt-8 px-4 lg:px-0">
+          <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
+          <div className="flex items-center text-gray-600 mb-8">
+            <span>{new Date(post.publishDate).toLocaleDateString()}</span>
+            <span className="mx-2">•</span>
+            <span>{post.author}</span>
+          </div>
+
+          <div className="lg:flex lg:gap-8">
+            <div className="lg:w-3/4">
+              <div
+                className="prose max-w-none"
+                dangerouslySetInnerHTML={{ __html: post.content }}
+              />
+            </div>
+            <div className="lg:w-1/4 mt-8 lg:mt-0">
+              <div className="sticky top-8">
+                <ShareButtons
+                  url={`/blog/${post._meta.path}`}
+                  title={post.title}
+                />
+                <FeaturedPosts currentPostId={post._meta.path} />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </article>

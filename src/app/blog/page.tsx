@@ -1,8 +1,8 @@
 import { Suspense } from 'react';
 import { allPosts, Post } from 'content-collections';
-import TagFilter from '../components/blog/TagFilter';
-import BlogList from '../components/blog/BlogList';
-import LoadMoreButton from '../components/blog/LoadMoreButton';
+import TagFilter from '@/blog/TagFilter';
+import BlogList from '@/blog/BlogList';
+import LoadMoreButton from '@/blog/LoadMoreButton';
 
 export const dynamic = 'force-dynamic';
 
