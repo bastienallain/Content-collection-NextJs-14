@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { allPosts, Post } from 'content-collections';
 import ShareButtons from '@/blog/ShareButtons';
 import FeaturedPosts from '@/blog/FeaturedPosts';
+import ShinyTag from '@/blog/ButtonTag';
 
 export async function generateStaticParams() {
   return allPosts.map((post) => ({
@@ -29,12 +30,11 @@ export default function BlogPost({ params }: { params: { slug: string } }) {
         />
         <div className="absolute bottom-4 left-4 flex flex-wrap gap-2">
           {post.tags.map((tag) => (
-            <span
+            <ShinyTag
               key={tag}
-              className="bg-green-500 text-white px-2 py-1 rounded-full text-sm"
-            >
-              {tag}
-            </span>
+              text={tag}
+              className="text-xs py-1 px-3" // Adjust size and padding as needed
+            />
           ))}
         </div>
       </div>
